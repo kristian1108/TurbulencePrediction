@@ -1,3 +1,5 @@
+#!../venv/bin/python3
+
 from mongo_utils import MongoUtility
 
 if __name__ == '__main__':
