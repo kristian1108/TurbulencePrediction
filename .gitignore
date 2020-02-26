@@ -1,3 +1,8 @@
+# User Additions
+*.xml
+.idea/
+database/settings_secret.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

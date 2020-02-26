@@ -29,7 +29,7 @@ def load_rss():
     resp = requests.get(url)
     current_time = str(datetime.datetime.now()).replace(' ', '_')
 
-    with open(f'airep_{current_time}.xml', 'wb') as f:
+    with open(f'../airep_files/airep_{current_time}.xml', 'wb') as f:
         f.write(resp.content)
 
 
@@ -59,7 +59,7 @@ def generate_id(length=10):
 
 
 def get_aireps():
-    return [report for report in glob.glob('*.xml') if 'airep' in report]
+    return [report for report in glob.glob('../airep_files/*.xml') if 'airep' in report]
 
 
 def prep_data():
@@ -91,11 +91,6 @@ def push_to_db():
 
     for rep in pireps:
         mongo.send_sample(rep)
-
-
-def reset_database():
-    mongo = MongoUtility()
-    mongo.remove_all_documents(mongo.pilotreports)
 
 
 if __name__ == "__main__":
