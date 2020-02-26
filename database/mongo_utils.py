@@ -1,11 +1,7 @@
 from settings_secret import *
 from pymongo import MongoClient
 import numpy as np
-import logging
 from bson.objectid import ObjectId
-
-INFO_LOGGER = logging.getLogger('info_logger')
-ERROR_LOGGER = logging.getLogger('error_logger')
 
 class MongoUtility:
 

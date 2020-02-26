@@ -7,7 +7,16 @@ import glob
 import string
 import random
 from mongo_utils import MongoUtility
+import logging
+from logging import INFO, ERROR
 
+
+INFO_LOGGER = logging.getLogger('info_logger')
+ERROR_LOGGER = logging.getLogger('error_logger')
+ERROR_LOGGER.isEnabledFor(ERROR)
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S',
+                    level=INFO, filename='../logs/collect_data.log', filemode='w')
 
 def get_url(hours_before):
 
@@ -28,7 +37,12 @@ def load_rss():
 
     url = get_url(hours_before)
 
-    resp = requests.get(url)
+    try:
+        resp = requests.get(url)
+        INFO_LOGGER.info(f'Successfully fetched data from {url}')
+    except Exception:
+        ERROR_LOGGER.exception(f'Failed to fetch data from {url}')
+
     current_time = str(datetime.datetime.now()).replace(' ', '_')
 
     with open(f'../airep_files/airep_{current_time}.xml', 'wb') as f:
@@ -51,6 +65,8 @@ def parse_xml(file):
                 rep[child.tag] = child.text
 
         turbulence_reports[id] = rep
+
+    INFO_LOGGER.info('Successfully parsed XML')
 
     return turbulence_reports
 
@@ -83,6 +99,8 @@ def prep_data():
         sample = {'key': key, 'payload': value}
         final.append(sample)
 
+    INFO_LOGGER.info('Successfully prepared data for database.')
+
     return final
 
 
@@ -91,9 +109,14 @@ def push_to_db():
     pireps = prep_data()
     mongo = MongoUtility()
 
-    for rep in pireps:
-        mongo.send_sample(rep)
+    try:
+        for rep in pireps:
+            mongo.send_sample(rep)
+        INFO_LOGGER.info('Successfully sent samples to the database.')
+    except Exception:
+        ERROR_LOGGER.exception('Something went wrong pusing to the database.')
 
 
 if __name__ == "__main__":
     push_to_db()
+    INFO_LOGGER.info('Finished data collection sequence.')
