@@ -62,7 +62,7 @@ def get_aireps():
     return [report for report in glob.glob('*.xml') if 'airep' in report]
 
 
-def main():
+def prep_data():
     load_rss()
     report_names = get_aireps()
 
@@ -83,13 +83,15 @@ def main():
 
     return final
 
+
 def push_to_db():
 
-    pireps = main()
+    pireps = prep_data()
     mongo = MongoUtility()
 
     for rep in pireps:
         mongo.send_sample(rep)
+
 
 def reset_database():
     mongo = MongoUtility()
