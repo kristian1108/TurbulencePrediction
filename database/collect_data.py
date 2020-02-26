@@ -16,7 +16,7 @@ ERROR_LOGGER = logging.getLogger('error_logger')
 ERROR_LOGGER.isEnabledFor(ERROR)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S',
-                    level=INFO, filename='../logs/collect_data.log', filemode='w')
+                    level=INFO, filename='../logs/collect_data.log')
 
 def get_url(hours_before):
 
