@@ -1,5 +1,3 @@
-#!../venv/bin/python3
-
 import requests
 import xml.etree.ElementTree as eT
 import datetime
