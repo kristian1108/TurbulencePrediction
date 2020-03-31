@@ -3,6 +3,8 @@ import shutil
 import datetime
 import os
 from collect_pireps import ERROR_LOGGER, INFO_LOGGER
+import boto3
+from settings_secret import *
 
 
 def get_url(data_type, day, time, glm=False):
@@ -29,7 +31,16 @@ def initialize_directory(image_categories):
             os.mkdir(f'../satellite_imagery/{cat}/')
 
 
+def push_to_amazon(s3, path, bucket='turbulenceprediction'):
+
+    s3.upload_file(path, bucket, path[3:])
+
+    os.remove(path)
+
+
 if __name__ == '__main__':
+
+    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
 
     with open('next_time.txt', 'r') as file:
         next_time = file.read()
@@ -72,10 +83,13 @@ if __name__ == '__main__':
         if resp.status_code == 200:
             INFO_LOGGER.info(f'Image found at URL {url}')
 
-            with open(f'../satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg', 'wb+') as file:
+            file_path = f'../satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg'
+
+            with open(file_path, 'wb+') as file:
                 resp.raw.decode_content = True
                 shutil.copyfileobj(resp.raw, file)
-                INFO_LOGGER.info(f'Image successfully saved to ../satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg')
+                push_to_amazon(s3, file_path)
+                INFO_LOGGER.info(f'Image successfully saved to Amazon @ /satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg')
 
     hours = int(time[:2])
     minutes = int(time[2:])
