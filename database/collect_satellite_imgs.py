@@ -1,8 +1,8 @@
 import requests
 import shutil
-from tqdm import tqdm
 import datetime
 import os
+from collect_pireps import ERROR_LOGGER, INFO_LOGGER
 
 
 def get_url(data_type, day, time, glm=False):
@@ -23,6 +23,7 @@ def initialize_directory(image_categories):
         pass
 
     else:
+        INFO_LOGGER.info('Initializing the satellite_imagery directory...')
         os.mkdir('../satellite_imagery/')
         for cat in image_categories:
             os.mkdir(f'../satellite_imagery/{cat}/')
@@ -53,6 +54,8 @@ if __name__ == '__main__':
     while len(day) < 3:
         day = '0'+day
 
+    INFO_LOGGER.info(f'Next date successfully read as day: {day}, time: {time}')
+
     date = str(datetime.datetime.now()).split(' ')[0]
 
     for img in all_imgs:
@@ -67,10 +70,12 @@ if __name__ == '__main__':
         resp = requests.get(url, stream=True)
 
         if resp.status_code == 200:
+            INFO_LOGGER.info(f'Image found at URL {url}')
 
             with open(f'../satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg', 'wb+') as file:
                 resp.raw.decode_content = True
                 shutil.copyfileobj(resp.raw, file)
+                INFO_LOGGER.info(f'Image successfully saved to ../satellite_imagery/{img}/{img}|{date}:{time}Z.jpeg')
 
     hours = int(time[:2])
     minutes = int(time[2:])
@@ -85,3 +90,4 @@ if __name__ == '__main__':
 
     with open('next_time.txt', 'w') as file:
         file.write(f'{int_day},{next_time}')
+        INFO_LOGGER.info(f'Next time written as day: {int_day}, time: {next_time}')

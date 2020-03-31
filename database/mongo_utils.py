@@ -1,6 +1,5 @@
 from settings_secret import *
 from pymongo import MongoClient
-import numpy as np
 from bson.objectid import ObjectId
 
 class MongoUtility:
